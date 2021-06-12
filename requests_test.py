@@ -19,5 +19,3 @@ def grab_manga_description(title: str) -> str:
     except:
         desc = "Manga Not Found"   
     return desc
-
-print(grab_manga_description('Berserk'))
