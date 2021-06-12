@@ -9,3 +9,13 @@ def grab_manga_id(title: str) -> str:
     except:
         id = "Manga Not Found"
     return id
+
+def grab_manga_description(title: str) -> str:
+    title.replace(' ', '+')
+    try:
+        response = requests.get(f"https://api.mangadex.org/manga?title={title}]")
+        data = response.json()
+        desc = data['results'][0]['data']['attributes']['description']['en']
+    except:
+        desc = "Manga Not Found"   
+    return desc

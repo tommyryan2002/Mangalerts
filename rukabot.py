@@ -2,7 +2,7 @@ import os
 import discord
 from discord.client import Client
 from dotenv import load_dotenv
-import requests_test
+import ruka_requests
 
 load_dotenv()
 intents = discord.Intents.default()
@@ -41,13 +41,13 @@ async def on_message(message):
     if message.content[:11] == 'r!manga_id ':
         string = message.content
         title = string.replace('r!manga_id ', '')
-        id = requests_test.grab_manga_id(title)
+        id = ruka_requests.grab_manga_id(title)
         await message.channel.send(id)
 
     if message.content[:13] == 'r!manga_desc ':
         string = message.content
         title = string.replace('r!manga_desc ', '')
-        id = requests_test.grab_manga_description(title)
+        id = ruka_requests.grab_manga_description(title)
         await message.channel.send(id)  
 
     elif message.content == "ping":
