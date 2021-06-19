@@ -1,57 +1,71 @@
 import os
 import discord
+import asyncio
+from discord import channel
+from discord import utils
 from discord.client import Client
+from discord.ext import commands
+from discord.ext.commands import Bot
+from discord.utils import get 
 from dotenv import load_dotenv
 import ruka_requests
 import rukaDB
 import ruka_rss
 import time
 import threading
-import datetime
-
-
+from datetime import date
+import nest_asyncio
 
 load_dotenv()
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.members = True
 intents.guild_reactions = True
 TOKEN = os.getenv('TOKEN')
 GUILD = os.getenv('GUILD')
-bot = discord.Client(intents=intents)
-
-db_thread = threading.Thread()
-#rss_thread = threading.Thread()
+bot = commands.Bot(command_prefix='r!', intents = intents)
 
 def check_updates():
     old_data = ruka_rss.grab_rss_data()
     while True:
-        print("Checked RSS")
         new_data = ruka_rss.grab_rss_data()
+        print("Checked RSS")
         if new_data != old_data:
             print("New Manga Releases!")
-            old_set = set(old_data)
-            new_releases = [manga for manga in new_data if manga not in old_set]
-        #TODO: notify users here/ store recent releases on a db
-        time.sleep(60)
+            new_releases = [manga for manga in new_data if manga not in old_data]
+            for manga in new_releases:
+                asyncio.run_coroutine_threadsafe(notify_users(ruka_requests.grab_manga_title(manga['title']), manga['chapter'], manga['group']), bot.loop)
+        time.sleep(20)
         old_data = new_data
 
-def notify_users(title: str):
+async def notify_users(title: str, chapter: str, group: str):
+    print(f'Notifying users about: {title}')
     guilds = rukaDB.get_all_guilds()
-    for guild in guilds:
-        if rukaDB.manga_in_guild(guild, title):
-            users = rukaDB.get_guild_users(guild)
-            for user in users:
-                if rukaDB.manga_is_tracked(guild, user, title): #and status date is not todays date:
-                    #TODO: Notify User via DM
-                    pass
-
-
-
-
-
-
-
-
+    for guild_name in guilds:
+        if rukaDB.manga_in_guild(guild_name, title):
+            users = rukaDB.get_guild_users(guild_name)
+            for user_name in users:
+                if rukaDB.manga_is_tracked(guild_name, user_name, title) \
+                and rukaDB.get_manga_date(guild_name, user_name, title) != date.today().strftime("%m/%d/%Y"):
+                    for guild in bot.guilds:
+                        if guild.name == guild_name:
+                            for member in guild.members:
+                                print(member)
+                                if str(member) == user_name:
+                                    id = ruka_requests.grab_manga_id(title)
+                                    cover = ruka_requests.grab_cover_id(id)
+                                    search_title = title.replace(' ', '+')
+                                    embed= discord.Embed(title=f"New {title} Chapter Alert!", \
+                                        url=f"https://mangadex.tv/search?type=titles&title={search_title}&submit=", \
+                                            description=f'A new chapter of {title} is out!', color= 0xffbe33)
+                                    embed.set_author(name='Ruka <3', icon_url='https://i.pinimg.com/564x/fb/29/48/fb29482d6d0e1e88a1b58c6c9d123cc4.jpg')
+                                    embed.add_field(name='Scan Group', value = group, inline=True)
+                                    embed.add_field(name='Chapter', value=chapter, inline=True)
+                                    embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
+                                    await member.send(embed=embed)
+                                    #await member.send(f"{title} has a new chapter out!")
+                                    break
+                        break
+                break
 
 
 @bot.event
@@ -59,6 +73,29 @@ async def on_ready():
     print(f"{bot.user} is online!")
 
 #TODO: when removed or added to a guild update the database by removing or adding a document
+@bot.event
+async def on_guild_join(guild):
+    if not rukaDB.guild_in_db(str(guild)):
+        try:
+            rukaDB.add_guild(str(guild))
+            response = f"{guild} added to the database!"
+        except:
+            response = f"Failed to add {guild} to the database"
+    else:
+        response = f"{guild} already in the database!"
+    await guild.channels[0].send(response)
+
+@bot.event
+async def on_guild_remove(guild):
+    if rukaDB.guild_in_db(str(guild)):
+        try:
+            rukaDB.remove_guild(str(guild))
+            print(f"{guild} removed from the database!")
+        except:
+            print(f"Failed to remove {guild} from the database")
+    else:
+        print(f"{guild} already not in the database!")
+
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
@@ -185,11 +222,28 @@ async def on_message(message):
             response = f'Error: could not retrieve manga for {message.author}'
             await message.channel.send(response)
 
-    elif message.content == "ping":
+    if message.content == "r!help":
+        embed=discord.Embed(title="Ruka Bot Commands", color=0xffbe33)
+        embed.set_author(name="Ruka <3", icon_url="https://i.pinimg.com/564x/fb/29/48/fb29482d6d0e1e88a1b58c6c9d123cc4.jpg")
+        embed.add_field(name="`r!track_manga [title]`", value="Add manga to personal tracking list", inline=False)
+        embed.add_field(name="`r!untrack_manga [title]`", value="Remove manga from tracking list", inline=False)
+        embed.add_field(name="`r!untrack_all_manga`", value="Remove all manga from tracking list", inline=False)
+        embed.add_field(name="`r!my_manga`", value="Returns a list of tracked manga", inline=False)
+        embed.add_field(name="`r!manga [title]`", value="Returns a description and image of a manga", inline=False)
+        embed.add_field(name="`r!add_user`", value="Manually add user to the database", inline=False)
+        embed.add_field(name="`r!add_guild`", value="Manually add server to the database", inline=False)
+        embed.add_field(name="`r!ping`", value="Ping Ruka Bot", inline=False)
+        embed.add_field(name="`r!help`", value="Returns a list of commands", inline=False)
+        await message.channel.send(embed=embed)
+
+        
+
+    elif message.content == "r!ping":
         response = "pong"
         await message.channel.send(response) 
 
-
-#db_thread.start()
-#rss_thread.start()
+nest_asyncio.apply()
+db_thread = threading.Thread(target=check_updates)
+db_thread.start()
 bot.run(TOKEN)
+

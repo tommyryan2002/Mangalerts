@@ -1,19 +1,3 @@
-#comments
-    #adding
-    #a post is an 'entry', look like json files, have _id tag that is used to access it
-    #creating a post creates dictionary keys that map to values
-    #col.insert_one({'_id': 0, "guild_names": "THE FREEZER"})
-
-    #find/query
-    #results = col.find({"guild_names":"THE FREEZER"})
-    #print(results)
-    #for result in results:
-        #print(result["guild_names"])
-
-    #deleting
-    #r = col.delete_one({"_id":0})
-
-import re
 from discord import user
 import pymongo
 import os
@@ -32,6 +16,9 @@ col = db["guilds"]
 def add_guild(guild_name: str):
     document_count = col.count_documents({})
     col.insert_one({'_id': document_count, 'guild_name': guild_name, 'users': []})
+
+def remove_guild(guild_name:str):
+    col.delete_one({'guild_name': guild_name})
 
 def add_user(guild_name: str, username: str):
     col.update_one({'guild_name': guild_name}, { '$push': {"users": {"name": username, "manga": []}}})
@@ -52,10 +39,6 @@ def user_in_guild(guild_name: str, username: str) -> bool:
 def guild_in_db(guild_name: str) -> bool:
     result = col.find_one({'guild_name': guild_name})
     return result != None
-
-def manga_is_tracked(guild_name: str, username: str, manga_title: str) -> bool:
-    result = col.find_one({'guild_name': guild_name, 'users': {'$elemMatch': {"name": username, 'manga': {'$elemMatch': {"title": manga_title}}}}})
-    return result
 
 def get_user_manga(guild_name: str, username: str):
     filter1 = {'guild_name': guild_name, 'users': {'$elemMatch': {"name": username}}}
@@ -95,4 +78,3 @@ def get_manga_date(guild_name: str, username: str, manga_title: str):
             {'$unwind': '$users.manga'}, {'$match': {"users.manga.title": manga_title}}])
     json_data = json.loads(dumps(results))
     return json_data[0]['users']['manga']['date']
-print(manga_is_tracked("Los Amigos :)", "idkwho?#7464", "Jujutsu Kaisen"))
