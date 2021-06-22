@@ -64,8 +64,6 @@ async def notify_users(title: str, chapter: str, group: str):
                                     embed.add_field(name='Chapter', value=chapter, inline=True)
                                     embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
                                     await member.send(embed=embed)
-                                    #await member.send(f"{title} has a new chapter out!")
-                                    #TODO: change date of manga in database
                                     break
                         break
                 break
