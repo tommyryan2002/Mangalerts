@@ -66,7 +66,6 @@ async def notify_users(title: str, chapter: str, group: str):
                                     await member.send(embed=embed)
                                     break
                         break
-                break
 
 
 @bot.event
