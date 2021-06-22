@@ -32,6 +32,7 @@ def check_updates():
         if new_data != old_data:
             print("New Manga Releases!")
             new_releases = [manga for manga in new_data if manga not in old_data]
+            print(new_releases)
             for manga in new_releases:
                 asyncio.run_coroutine_threadsafe(notify_users(ruka_requests.grab_manga_title(manga['title']), manga['chapter'], manga['group']), bot.loop)
         time.sleep(20)
@@ -51,6 +52,7 @@ async def notify_users(title: str, chapter: str, group: str):
                             for member in guild.members:
                                 print(member)
                                 if str(member) == user_name:
+                                    rukaDB.modify_date(str(guild), str(member), title, date.today().strftime("%m/%d/%Y"))
                                     id = ruka_requests.grab_manga_id(title)
                                     cover = ruka_requests.grab_cover_id(id)
                                     search_title = title.replace(' ', '+')
@@ -63,6 +65,7 @@ async def notify_users(title: str, chapter: str, group: str):
                                     embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
                                     await member.send(embed=embed)
                                     #await member.send(f"{title} has a new chapter out!")
+                                    #TODO: change date of manga in database
                                     break
                         break
                 break
@@ -72,7 +75,6 @@ async def notify_users(title: str, chapter: str, group: str):
 async def on_ready():
     print(f"{bot.user} is online!")
 
-#TODO: when removed or added to a guild update the database by removing or adding a document
 @bot.event
 async def on_guild_join(guild):
     if not rukaDB.guild_in_db(str(guild)):
@@ -235,8 +237,6 @@ async def on_message(message):
         embed.add_field(name="`r!ping`", value="Ping Ruka Bot", inline=False)
         embed.add_field(name="`r!help`", value="Returns a list of commands", inline=False)
         await message.channel.send(embed=embed)
-
-        
 
     elif message.content == "r!ping":
         response = "pong"

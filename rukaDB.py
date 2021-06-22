@@ -72,9 +72,16 @@ def get_guild_users(guild_name: str):
             r.append(user['name'])
     return r
 
+def modify_date(guild_name: str, username: str, manga_title: str, date: str):
+    col.update_one({'guild_name': guild_name, 'users.name': username, 'users.manga': {'$elemMatch': {'title': manga_title}}}, \
+        {'$set': {'users.$.manga.$[ele].date': date}}, False, array_filters= [{'ele.title': manga_title}])
+
+
 def get_manga_date(guild_name: str, username: str, manga_title: str):
     results = col.aggregate([{'$match':{'guild_name': guild_name}}, \
         {'$unwind': "$users"}, {"$match": {'users.name': username}}, \
             {'$unwind': '$users.manga'}, {'$match': {"users.manga.title": manga_title}}])
     json_data = json.loads(dumps(results))
     return json_data[0]['users']['manga']['date']
+
+modify_date('Los Amigos :)', "idkwho?#7464", 'Solo Leveling', 'poop')
