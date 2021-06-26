@@ -39,33 +39,34 @@ def check_updates():
         old_data = new_data
 
 async def notify_users(title: str, chapter: str, group: str):
-    print(f'Notifying users about: {title}')
-    guilds = rukaDB.get_all_guilds()
-    for guild_name in guilds:
-        if rukaDB.manga_in_guild(guild_name, title):
-            users = rukaDB.get_guild_users(guild_name)
-            for user_name in users:
-                if rukaDB.manga_is_tracked(guild_name, user_name, title) \
-                and rukaDB.get_manga_date(guild_name, user_name, title) != date.today().strftime("%m/%d/%Y"):
-                    for guild in bot.guilds:
-                        if guild.name == guild_name:
-                            for member in guild.members:
-                                print(member)
-                                if str(member) == user_name:
-                                    rukaDB.modify_date(str(guild), str(member), title, date.today().strftime("%m/%d/%Y"))
-                                    id = ruka_requests.grab_manga_id(title)
-                                    cover = ruka_requests.grab_cover_id(id)
-                                    search_title = title.replace(' ', '+')
-                                    embed= discord.Embed(title=f"New {title} Chapter Alert!", \
-                                        url=f"https://mangadex.tv/search?type=titles&title={search_title}&submit=", \
-                                            description=f'A new chapter of {title} is out!', color= 0xffbe33)
-                                    embed.set_author(name='Ruka <3', icon_url='https://i.pinimg.com/564x/fb/29/48/fb29482d6d0e1e88a1b58c6c9d123cc4.jpg')
-                                    embed.add_field(name='Scan Group', value = group, inline=True)
-                                    embed.add_field(name='Chapter', value=chapter, inline=True)
-                                    embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
-                                    await member.send(embed=embed)
-                                    break
-                        break
+    if title != "Manga Not Found":
+        print(f'Notifying users about: {title}')
+        guilds = rukaDB.get_all_guilds()
+        for guild_name in guilds:
+            if rukaDB.manga_in_guild(guild_name, title):
+                users = rukaDB.get_guild_users(guild_name)
+                for user_name in users:
+                    if rukaDB.manga_is_tracked(guild_name, user_name, title) \
+                    and rukaDB.get_manga_date(guild_name, user_name, title) != date.today().strftime("%m/%d/%Y"):
+                        for guild in bot.guilds:
+                            if guild.name == guild_name:
+                                for member in guild.members:
+                                    print(member)
+                                    if str(member) == user_name:
+                                        rukaDB.modify_date(str(guild), str(member), title, date.today().strftime("%m/%d/%Y"))
+                                        id = ruka_requests.grab_manga_id(title)
+                                        cover = ruka_requests.grab_cover_id(id)
+                                        search_title = title.replace(' ', '+')
+                                        embed= discord.Embed(title=f"New {title} Chapter Alert!", \
+                                            url=f"https://mangadex.tv/search?type=titles&title={search_title}&submit=", \
+                                                description=f'A new chapter of {title} is out!', color= 0xffbe33)
+                                        embed.set_author(name='Ruka <3', icon_url='https://i.pinimg.com/564x/fb/29/48/fb29482d6d0e1e88a1b58c6c9d123cc4.jpg')
+                                        embed.add_field(name='Scan Group', value = group, inline=True)
+                                        embed.add_field(name='Chapter', value=chapter, inline=True)
+                                        embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
+                                        await member.send(embed=embed)
+                                        break
+                            break
 
 
 @bot.event
