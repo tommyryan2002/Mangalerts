@@ -209,7 +209,7 @@ async def on_message(message):
         try:
             manga_list = rukaDB.get_user_manga(str(message.guild), str(message.author))
             if len(manga_list) == 0:
-                response = f'> {message.author} is not tracking any manga!'
+                response = f'{message.author} is not tracking any manga!'
                 await message.channel.send(response)
             else:
                 for manga in manga_list:

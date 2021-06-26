@@ -41,10 +41,12 @@ def guild_in_db(guild_name: str) -> bool:
     return result != None
 
 def get_user_manga(guild_name: str, username: str):
-    filter1 = {'guild_name': guild_name, 'users': {'$elemMatch': {"name": username}}}
-    filter2 = {'_id': 0, 'guild_name': 0, 'users.name': 0}
-    manga_json = col.find_one(filter1, filter2)['users'][0]['manga']
-    return [ele['title'] for ele in manga_json]
+    results = col.aggregate([{'$match':{'guild_name': guild_name}}, \
+        {'$unwind': "$users"}, {"$match": {'users.name': username}}, \
+            {'$unwind': '$users.manga'}])
+    results = json.loads(dumps(results))
+    manga = [ele['users']['manga']['title'] for ele in results]
+    return manga
 
 def manga_is_tracked(guild_name: str, username: str, manga_title: str) -> bool:
     result = col.find_one({'guild_name': guild_name, 'users': {'$elemMatch': {"name": username, 'manga': {'$elemMatch': {"title": manga_title}}}}})
@@ -83,5 +85,3 @@ def get_manga_date(guild_name: str, username: str, manga_title: str):
             {'$unwind': '$users.manga'}, {'$match': {"users.manga.title": manga_title}}])
     json_data = json.loads(dumps(results))
     return json_data[0]['users']['manga']['date']
-
-modify_date('Los Amigos :)', "idkwho?#7464", 'Solo Leveling', 'poop')
