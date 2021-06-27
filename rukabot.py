@@ -16,12 +16,12 @@ import threading
 from datetime import date
 import nest_asyncio
 
-load_dotenv()
-intents = discord.Intents.all()
+#load_dotenv()
+intents = discord.Intents.default()
 intents.members = True
 intents.guild_reactions = True
-TOKEN = os.getenv('TOKEN')
-GUILD = os.getenv('GUILD')
+#TOKEN = os.getenv('TOKEN')
+#GUILD = os.getenv('GUILD')
 bot = commands.Bot(command_prefix='r!', intents = intents)
 
 def check_updates():
@@ -59,8 +59,8 @@ async def notify_users(title: str, chapter: str, group: str):
                                         search_title = title.replace(' ', '+')
                                         embed= discord.Embed(title=f"New {title} Chapter Alert!", \
                                             url=f"https://mangadex.tv/search?type=titles&title={search_title}&submit=", \
-                                                description=f'A new chapter of {title} is out!', color= 0xffbe33)
-                                        embed.set_author(name='Ruka <3', icon_url='https://i.pinimg.com/564x/fb/29/48/fb29482d6d0e1e88a1b58c6c9d123cc4.jpg')
+                                                description=f'A new chapter of {title} is out!', color= 0xff0000)
+                                        embed.set_author(name='Mangalerts', icon_url='https://imgur.com/nMiqX4V.png')
                                         embed.add_field(name='Scan Group', value = group, inline=True)
                                         embed.add_field(name='Chapter', value=chapter, inline=True)
                                         embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
@@ -100,9 +100,8 @@ async def on_guild_remove(guild):
 async def on_message(message):
     if message.author == bot.user:
         return
-
-    if bot.user.mentioned_in(message):
-        await message.add_reaction('GWnoneAngryPing:644364665987661825') 
+    #if bot.user.mentioned_in(message):
+        #await message.add_reaction('GWnoneAngryPing:644364665987661825') 
 
     if message.content[:11] == 'r!manga_id ':
         string = message.content
@@ -125,35 +124,35 @@ async def on_message(message):
         if id is not None:
             cover = ruka_requests.grab_cover_id(id)
             link = f'https://mangadex.org/title/{id}'
-            embed=discord.Embed(title= title_real, url = link, description = desc, color=0xffbe33)
-            embed.set_author(name='Ruka <3', icon_url='https://i.pinimg.com/564x/fb/29/48/fb29482d6d0e1e88a1b58c6c9d123cc4.jpg')
+            embed=discord.Embed(title= title_real, url = link, description = desc, color=0xff0000)
+            embed.set_author(name='Mangalerts', icon_url='https://imgur.com/nMiqX4V.png')
             embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
             await message.channel.send(embed=embed)
         else:
             await message.channel.send(f"{title} not found on MangaDex!")
 
-    if message.content == "r!add_guild":
-        if not rukaDB.guild_in_db(str(message.guild)):
-            try:
-                rukaDB.add_guild(str(message.guild))
-                response = f"{message.guild} added to the database!"
-            except:
-                response = f"Failed to add {message.guild} to the database"
-        else:
-            response = f"{message.guild} already in the database!"
-        await message.channel.send(response)
+    #if message.content == "r!add_guild":
+        #if not rukaDB.guild_in_db(str(message.guild)):
+            #try:
+                #rukaDB.add_guild(str(message.guild))
+                #response = f"{message.guild} added to the database!"
+            #except:
+                #response = f"Failed to add {message.guild} to the database"
+        #else:
+            #response = f"{message.guild} already in the database!"
+        #await message.channel.send(response)
 
-    if message.content == "r!add_user":
-        if not rukaDB.user_in_guild(str(message.guild), str(message.author)):
-            try:
-                rukaDB.add_user(str(message.guild), str(message.author))
-                response = f"{message.author} added to the database!"
-            except:
-                response = f"Failed to add {message.author} to the database"
-        else:
-            response = f"{message.author} already in the database!"
-        await message.channel.send(response)
-        
+    #if message.content == "r!add_user":
+       # if not rukaDB.user_in_guild(str(message.guild), str(message.author)):
+          #  try:
+           #     rukaDB.add_user(str(message.guild), str(message.author))
+          #      response = f"{message.author} added to the database!"
+          #  except:
+        #        response = f"Failed to add {message.author} to the database"
+      #  else:
+     #       response = f"{message.author} already in the database!"
+     #   await message.channel.send(response)
+    
     if message.content[:14] == "r!track_manga ":
         if not rukaDB.user_in_guild(str(message.guild), str(message.author)):
             try:
@@ -214,8 +213,8 @@ async def on_message(message):
             else:
                 for manga in manga_list:
                     string += '⁠— ' + manga + '\n'
-                embed = discord.Embed(title=f"{message.author}'s Tracked Manga", description=string, color=0xffbe33)
-                embed.set_author(name= "Ruka <3", icon_url='https://i.pinimg.com/564x/fb/29/48/fb29482d6d0e1e88a1b58c6c9d123cc4.jpg')
+                embed = discord.Embed(title=f"{message.author}'s Tracked Manga", description=string, color=0xff0000)
+                embed.set_author(name= "Mangalerts", icon_url='https://imgur.com/nMiqX4V.png')
                 embed.set_thumbnail(url = message.author.avatar_url)
                 await message.channel.send(embed=embed)
         except:
@@ -223,8 +222,8 @@ async def on_message(message):
             await message.channel.send(response)
 
     if message.content == "r!help":
-        embed=discord.Embed(title="Ruka Bot Commands", color=0xffbe33)
-        embed.set_author(name="Ruka <3", icon_url="https://i.pinimg.com/564x/fb/29/48/fb29482d6d0e1e88a1b58c6c9d123cc4.jpg")
+        embed=discord.Embed(title="Ruka Bot Commands", color=0xff0000)
+        embed.set_author(name="Mangalerts", icon_url="https://imgur.com/nMiqX4V.png")
         embed.add_field(name="`r!track_manga [title]`", value="Add manga to personal tracking list", inline=False)
         embed.add_field(name="`r!untrack_manga [title]`", value="Remove manga from tracking list", inline=False)
         embed.add_field(name="`r!untrack_all_manga`", value="Remove all manga from tracking list", inline=False)

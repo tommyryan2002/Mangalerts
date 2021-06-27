@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import feedparser
 import re
 def grab_rss_data():

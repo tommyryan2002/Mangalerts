@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from datetime import date
 from bson.json_util import dumps
 load_dotenv()
-DB_PASS = os.getenv('DB_PASS')
+#DB_PASS = os.getenv('DB_PASS')
 cluster = MongoClient(f"mongodb+srv://tpr2:{DB_PASS}@rukadb.jbzul.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 db = cluster['Ruka']
 col = db["guilds"]
