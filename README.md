@@ -16,7 +16,7 @@ m!ping| Ping Mangalerts
 m!help| Returns a list of commands and links
 
 ### Examples
-![alert](https://i.imgur.com/LRO6RgT.png) ![mymanga](https://i.imgur.com/zX3iyat.png)
+![alert](https://i.imgur.com/LRO6RgT.png) ![mymanga](https://i.imgur.com/zX3iyat.png) ![manga](https://i.imgur.com/mcohc3e.png)
 
 ## Still Have an Issue?
 Contact me at mangalerts@gmail.com, or raise an issue on github.
