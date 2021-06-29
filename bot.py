@@ -16,13 +16,13 @@ import threading
 from datetime import date
 import nest_asyncio
 
-#load_dotenv()
+load_dotenv()
 intents = discord.Intents.default()
 intents.members = True
 intents.guild_reactions = True
-#TOKEN = os.getenv('TOKEN')
-#GUILD = os.getenv('GUILD')
-bot = commands.Bot(command_prefix='r!', intents = intents)
+TOKEN = os.getenv('TOKEN')
+GUILD = os.getenv('GUILD')
+bot = commands.Bot(command_prefix='m!', intents = intents, help_command=None)
 
 def check_updates():
     old_data = rss.grab_rss_data()
@@ -68,7 +68,6 @@ async def notify_users(title: str, chapter: str, group: str):
                                         break
                             break
 
-
 @bot.event
 async def on_ready():
     print(f"{bot.user} is online!")
@@ -96,148 +95,120 @@ async def on_guild_remove(guild):
     else:
         print(f"{guild} already not in the database!")
 
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-    #if bot.user.mentioned_in(message):
-        #await message.add_reaction('GWnoneAngryPing:644364665987661825') 
+@bot.command(name="ping")
+async def ping(ctx):
+    await ctx.send("pong")
 
-    if message.content[:11] == 'r!manga_id ':
-        string = message.content
-        title = string.replace('r!manga_id ', '')
-        id = m_requests.grab_manga_id(title)
-        await message.channel.send(id)
+@bot.command(name="manga")
+async def manga_desc(ctx):
+    string = ctx.message.content
+    title = string.replace('m!manga ', '')
+    desc_raw = m_requests.grab_manga_description(title)
+    title_real = m_requests.grab_manga_title(title)
+    ele = desc_raw[0]
+    desc= ''
+    for ele in desc_raw:
+        if ele == '[':
+            break
+        desc += ele
+    id = m_requests.grab_manga_id(title)
+    if id is not None:
+        cover = m_requests.grab_cover_id(id)
+        link = f'https://mangadex.org/title/{id}'
+        embed=discord.Embed(title= title_real, url = link, description = desc, color=0xff0000)
+        embed.set_author(name='Mangalerts', icon_url='https://imgur.com/nMiqX4V.png')
+        embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
+        await ctx.message.channel.send(embed=embed)
+    else:
+        await ctx.message.channel.send(f"{title} not found on MangaDex!")
 
-    if message.content[:8] == 'r!manga ':
-        string = message.content
-        title = string.replace('r!manga ', '')
-        desc_raw = m_requests.grab_manga_description(title)
-        title_real = m_requests.grab_manga_title(title)
-        ele = desc_raw[0]
-        desc= ''
-        for ele in desc_raw:
-            if ele == '[':
-                break
-            desc += ele
-        id = m_requests.grab_manga_id(title)
-        if id is not None:
-            cover = m_requests.grab_cover_id(id)
-            link = f'https://mangadex.org/title/{id}'
-            embed=discord.Embed(title= title_real, url = link, description = desc, color=0xff0000)
-            embed.set_author(name='Mangalerts', icon_url='https://imgur.com/nMiqX4V.png')
-            embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
-            await message.channel.send(embed=embed)
-        else:
-            await message.channel.send(f"{title} not found on MangaDex!")
-
-    #if message.content == "r!add_guild":
-        #if not db.guild_in_db(str(message.guild)):
-            #try:
-                #db.add_guild(str(message.guild))
-                #response = f"{message.guild} added to the database!"
-            #except:
-                #response = f"Failed to add {message.guild} to the database"
-        #else:
-            #response = f"{message.guild} already in the database!"
-        #await message.channel.send(response)
-
-    #if message.content == "r!add_user":
-       # if not db.user_in_guild(str(message.guild), str(message.author)):
-          #  try:
-           #     db.add_user(str(message.guild), str(message.author))
-          #      response = f"{message.author} added to the database!"
-          #  except:
-        #        response = f"Failed to add {message.author} to the database"
-      #  else:
-     #       response = f"{message.author} already in the database!"
-     #   await message.channel.send(response)
-    
-    if message.content[:14] == "r!track_manga ":
-        if not db.user_in_guild(str(message.guild), str(message.author)):
-            try:
-                db.add_user(str(message.guild), str(message.author))
-                response1 = f"{message.author} added to the database!\n"
-            except:
-                response1 = f"Failed to add {message.author} to the database"
-        else:
-            response1 = ''
-        string = message.content
-        title = string.replace('r!track_manga ', '')
-        real_title = m_requests.grab_manga_title(title)
-        if not db.manga_is_tracked(str(message.guild), str(message.author), real_title):
-            if real_title != "Manga Not Found":
-                try:
-                    db.add_manga(str(message.guild), str(message.author), real_title)
-                    response = f"{message.author} is now tracking {real_title}!"
-                except:
-                    response = f"Error: {real_title} could not be tracked"
-            else:
-                response = "Manga Not Found"
-        else:
-            response = f"{title} is already being tracked!"
-        await message.channel.send(response1 + response)
-
-    if message.content[:16] == "r!untrack_manga ":
-        string = message.content
-        title = string.replace('r!untrack_manga ', '')
-        real_title = m_requests.grab_manga_title(title)
+@bot.command(name="track_manga")
+async def track_manga(ctx):
+    if not db.user_in_guild(str(ctx.message.guild), str(ctx.message.author)):
+        try:
+            db.add_user(str(ctx.message.guild), str(message.author))
+            response1 = f"{ctx.message.author} added to the database!\n"
+        except:
+            response1 = f"Failed to add {ctx.message.author} to the database"
+    else:
+        response1 = ''
+    string = ctx.message.content
+    title = string.replace('m!track_manga ', '')
+    real_title = m_requests.grab_manga_title(title)
+    if not db.manga_is_tracked(str(ctx.message.guild), str(ctx.message.author), real_title):
         if real_title != "Manga Not Found":
-            if db.manga_is_tracked(str(message.guild), str(message.author), real_title):
-                try:
-                    db.remove_manga(str(message.guild), str(message.author), real_title)
-                    response = f"{message.author} is no longer tracking {real_title}!"
-                except:
-                    response = f"Error: {title} could not be untracked"
-            else:
-                response = f"{title} is already not being tracked"
+            try:
+                db.add_manga(str(ctx.message.guild), str(ctx.message.author), real_title)
+                response = f"{ctx.message.author} is now tracking {real_title}!"
+            except:
+                response = f"Error: {real_title} could not be tracked"
         else:
-            response = f"{title} not found on MangaDex"
-        await message.channel.send(response)
+            response = "Manga Not Found"
+    else:
+        response = f"{real_title} is already being tracked!"
+    await ctx.message.channel.send(response1 + response)
 
-    if message.content == "r!untrack_all_manga":
-        try:
-            db.remove_all_manga(str(message.guild), str(message.author))
-            response = f"{message.author} is no longer tracking any manga!"
-        except:
-            response = f"Error: Manga could not be untracked"
-        await message.channel.send(response)
+@bot.command(name="untrack_manga")
+async def untrack_manga(ctx):
+    string = ctx.message.content
+    title = string.replace('m!untrack_manga ', '')
+    real_title = m_requests.grab_manga_title(title)
+    if real_title != "Manga Not Found":
+        if db.manga_is_tracked(str(ctx.message.guild), str(ctx.message.author), real_title):
+            try:
+                db.remove_manga(str(ctx.message.guild), str(ctx.message.author), real_title)
+                response = f"{ctx.message.author} is no longer tracking {real_title}!"
+            except:
+                response = f"Error: {title} could not be untracked"
+        else:
+            response = f"{title} is already not being tracked"
+    else:
+        response = f"{title} not found on MangaDex"
+    await ctx.send(response)
 
-    if message.content == "r!my_manga":
-        string = ""
-        try:
-            manga_list = db.get_user_manga(str(message.guild), str(message.author))
-            if len(manga_list) == 0:
-                response = f'{message.author} is not tracking any manga!'
-                await message.channel.send(response)
-            else:
-                for manga in manga_list:
-                    string += '⁠— ' + manga + '\n'
-                embed = discord.Embed(title=f"{message.author}'s Tracked Manga", description=string, color=0xff0000)
-                embed.set_author(name= "Mangalerts", icon_url='https://imgur.com/nMiqX4V.png')
-                embed.set_thumbnail(url = message.author.avatar_url)
-                await message.channel.send(embed=embed)
-        except:
-            response = f'Error: could not retrieve manga for {message.author}'
-            await message.channel.send(response)
+@bot.command(name="untrack_all_manga")
+async def untrack_all_manga(ctx):
+    try:
+        db.remove_all_manga(str(ctx.message.guild), str(ctx.message.author))
+        response = f"{ctx.message.author} is no longer tracking any manga!"
+    except:
+        response = f"Error: Manga could not be untracked"
+    await ctx.send(response)
 
-    if message.content == "r!help":
-        embed=discord.Embed(title="Ruka Bot Commands", color=0xff0000)
-        embed.set_author(name="Mangalerts", icon_url="https://imgur.com/nMiqX4V.png")
-        embed.add_field(name="`r!track_manga [title]`", value="Add manga to personal tracking list", inline=False)
-        embed.add_field(name="`r!untrack_manga [title]`", value="Remove manga from tracking list", inline=False)
-        embed.add_field(name="`r!untrack_all_manga`", value="Remove all manga from tracking list", inline=False)
-        embed.add_field(name="`r!my_manga`", value="Returns a list of tracked manga", inline=False)
-        embed.add_field(name="`r!manga [title]`", value="Returns a description and image of a manga", inline=False)
-        embed.add_field(name="`r!add_user`", value="Manually add user to the database", inline=False)
-        embed.add_field(name="`r!add_guild`", value="Manually add server to the database", inline=False)
-        embed.add_field(name="`r!ping`", value="Ping Ruka Bot", inline=False)
-        embed.add_field(name="`r!help`", value="Returns a list of commands", inline=False)
-        await message.channel.send(embed=embed)
+@bot.command(name="my_manga")
+async def my_manga(ctx):
+    string = ""
+    try:
+        manga_list = db.get_user_manga(str(ctx.guild), str(ctx.message.author))
+        if len(manga_list) == 0:
+            response = f'{ctx.message.author} is not tracking any manga!'
+            await ctx.send(response)
+        else:
+            for manga in manga_list:
+                string += '⁠— ' + manga + '\n'
+            embed = discord.Embed(title=f"{ctx.message.author}'s Tracked Manga", description=string, color=0xff0000)
+            embed.set_author(name= "Mangalerts", icon_url='https://imgur.com/nMiqX4V.png')
+            embed.set_thumbnail(url = ctx.message.author.avatar_url)
+            await ctx.message.channel.send(embed=embed)
+    except:
+        response = f'Error: could not retrieve manga for {ctx.message.author}'
+        await ctx.send(response)
 
-    elif message.content == "r!ping":
-        response = "pong"
-        await message.channel.send(response) 
+@bot.command(name="help")
+async def help(ctx):
+    embed=discord.Embed(title="Mangalerts Commands", color=0xff0000)
+    embed.set_author(name="Mangalerts", icon_url="https://imgur.com/nMiqX4V.png")
+    embed.add_field(name="`m!track_manga [title]`", value="Add manga to personal tracking list", inline=False)
+    embed.add_field(name="`m!untrack_manga [title]`", value="Remove manga from tracking list", inline=False)
+    embed.add_field(name="`m!untrack_all_manga`", value="Remove all manga from tracking list", inline=False)
+    embed.add_field(name="`m!my_manga`", value="Returns a list of tracked manga", inline=False)
+    embed.add_field(name="`m!manga [title]`", value="Returns a description and image of a manga", inline=False)
+    embed.add_field(name="`m!ping`", value="Ping Mangalerts", inline=True)
+    embed.add_field(name="`m!help`", value="Returns a list of commands", inline=True)
+    embed.set_thumbnail(url = 'https://imgur.com/nMiqX4V.png')
+    embed.add_field(name = "Still Have an Issue?", value = 'Check out the Mangalerts Github: https://github.com/tommyryan2002/Mangalerts', inline= False)
+    embed.add_field(name= "Add Mangalerts to your own server!", value = "https://discord.com/api/oauth2/authorize?client_id=852814525886758922&permissions=0&scope=bot")
+    await ctx.send(embed=embed)
 
 nest_asyncio.apply()
 db_thread = threading.Thread(target=check_updates)
