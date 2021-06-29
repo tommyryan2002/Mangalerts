@@ -4,7 +4,7 @@ Mangalerts is a discord bot that provides users with direct message notification
 ## Adding Mangalerts to your server
 Adding Mangalerts to your server is simple as clicking [here](https://discord.com/api/oauth2/authorize?client_id=852814525886758922&permissions=0&scope=bot)!
 ## Usage
-Like most other discord bots, manga alerts runs by typing in any whitelisted channel m![`command`] \<`args`>\, in which command is the name of the `command` and `args` is what is to be passed in as seen below.
+Like most other discord bots, manga alerts runs by typing in any whitelisted channel m![`command`] \<`args`>\, in which command is the name of the `command` and `args` is what is to be passed in as seen below. Do *not* attempt to use Mangalerts commands in a DM, as it will reply but not update the database.
 Command|Description
 -------|-----------
 m!track_manga [title] | Add manga title to personal tracking list.
