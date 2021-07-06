@@ -41,36 +41,36 @@ def check_updates():
 async def notify_users(title: str, chapter: str, group: str):
     if title != "Manga Not Found":
         print(f'Notifying users about: {title}')
-        guilds = db.get_all_guilds()
-        for guild_name in guilds:
-            if db.manga_in_guild(guild_name, title):
-                users = db.get_guild_users(guild_name)
+        for guild in bot.guilds:
+            if db.manga_in_guild(str(guild), title):
+                users = db.get_guild_users(str(guild))
                 for user_name in users:
-                    if db.manga_is_tracked(guild_name, user_name, title) \
-                    and db.get_manga_date(guild_name, user_name, title) != date.today().strftime("%m/%d/%Y"):
-                        for guild in bot.guilds:
-                            if guild.name == guild_name:
-                                for member in guild.members:
-                                    print(member)
-                                    if str(member) == user_name:
-                                        db.modify_date(str(guild), str(member), title, date.today().strftime("%m/%d/%Y"))
-                                        id = m_requests.grab_manga_id(title)
-                                        cover = m_requests.grab_cover_id(id)
-                                        search_title = title.replace(' ', '+')
-                                        embed= discord.Embed(title=f"New {title} Chapter Alert!", \
-                                            url=f"https://mangadex.tv/search?type=titles&title={search_title}&submit=", \
-                                                description=f'A new chapter of {title} is out!', color= 0xff0000)
-                                        embed.set_author(name='Mangalerts', icon_url='https://imgur.com/nMiqX4V.png')
-                                        embed.add_field(name='Scan Group', value = group, inline=True)
-                                        embed.add_field(name='Chapter', value=chapter, inline=True)
-                                        embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
-                                        await member.send(embed=embed)
-                                        break
-                            break
+                    if db.manga_is_tracked(str(guild), user_name, title) \
+                    and db.get_manga_date(str(guild), user_name, title) != date.today().strftime("%m/%d/%Y"):
+                        for member in guild.members:
+                            print(member)
+                            if str(member) == user_name:
+                                db.modify_date(str(guild), str(member), title, date.today().strftime("%m/%d/%Y"))
+                                id = m_requests.grab_manga_id(title)
+                                cover = m_requests.grab_cover_id(id)
+                                search_title = title.replace(' ', '+')
+                                embed= discord.Embed(title=f"New {title} Chapter Alert!", \
+                                    url=f"https://mangadex.tv/search?type=titles&title={search_title}&submit=", \
+                                        description=f'A new chapter of {title} is out!', color= 0xff0000)
+                                embed.set_author(name='Mangalerts', icon_url='https://imgur.com/nMiqX4V.png')
+                                embed.add_field(name='Scan Group', value = group, inline=True)
+                                embed.add_field(name='Chapter', value=chapter, inline=True)
+                                embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
+                                await member.send(embed=embed)
+                                break
+
 
 @bot.event
 async def on_ready():
     print(f"{bot.user} is online!")
+    await bot.change_presence(activity=discord.Game(name="m!help"))
+    for guild in bot.guilds:
+        print(guild)
 
 @bot.event
 async def on_guild_join(guild):
@@ -126,7 +126,7 @@ async def manga_desc(ctx):
 async def track_manga(ctx):
     if not db.user_in_guild(str(ctx.message.guild), str(ctx.message.author)):
         try:
-            db.add_user(str(ctx.message.guild), str(message.author))
+            db.add_user(str(ctx.message.guild), str(ctx.message.author))
             response1 = f"{ctx.message.author} added to the database!\n"
         except:
             response1 = f"Failed to add {ctx.message.author} to the database"

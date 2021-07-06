@@ -1,7 +1,15 @@
 import feedparser
 import re
 def grab_rss_data():
-    d = feedparser.parse('https://www.mangaupdates.com/rss.php')
+    try:
+        d = feedparser.parse('https://www.mangaupdates.com/rss.php')
+    except:
+        d = None
+        while d == None:
+            try:
+                d = feedparser.parse('https://www.mangaupdates.com/rss.php')
+            except:
+                print('Connection Error')
     manga_array = []
     for ele in d['entries']:
         try:
