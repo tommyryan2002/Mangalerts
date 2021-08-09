@@ -1,3 +1,4 @@
+import datetime
 import os
 import discord
 import asyncio
@@ -14,6 +15,7 @@ import rss
 import time
 import threading
 from datetime import date
+from datetime import datetime
 import nest_asyncio
 
 load_dotenv()
@@ -28,7 +30,7 @@ def check_updates():
     old_data = rss.grab_rss_data()
     while True:
         new_data = rss.grab_rss_data()
-        print("Checked RSS")
+        print("Checked RSS" + " " + str(datetime.now().strftime("%H:%M:%S")))
         if new_data != old_data:
             print("New Manga Releases!")
             new_releases = [manga for manga in new_data if manga not in old_data]
@@ -47,6 +49,7 @@ async def notify_users(title: str, chapter: str, group: str):
                 for user_name in users:
                     if db.manga_is_tracked(str(guild), user_name, title) \
                     and db.get_manga_date(str(guild), user_name, title) != date.today().strftime("%m/%d/%Y"):
+                        #TODO: Update this code so that instead of searching through every user in the guild, it dirtectly gets the user object by their id, rather than username.
                         for member in guild.members:
                             print(member)
                             if str(member) == user_name:
