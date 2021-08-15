@@ -18,6 +18,7 @@ def add_guild(guild_name: str):
     while document_count >= 0:
         try:
             col.insert_one({'_id': document_count, 'guild_name': guild_name, 'users': []})
+            break
         except:
             document_count -= 1
     
