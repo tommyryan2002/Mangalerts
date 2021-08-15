@@ -101,7 +101,8 @@ async def on_guild_remove(guild):
 
 @bot.command(name="ping")
 async def ping(ctx):
-    await ctx.send("pong")
+    if not ctx.message.author.bot:
+        await ctx.send("pong")
 
 @bot.command(name="manga")
 async def manga_desc(ctx):
@@ -122,8 +123,9 @@ async def manga_desc(ctx):
         embed=discord.Embed(title= title_real, url = link, description = desc, color=0xff0000)
         embed.set_author(name='Mangalerts', icon_url='https://imgur.com/nMiqX4V.png')
         embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
-        await ctx.message.channel.send(embed=embed)
-    else:
+        if not ctx.message.author.bot:
+            await ctx.message.channel.send(embed=embed)
+    elif not ctx.message.author.bot:
         await ctx.message.channel.send(f"{title} not found on MangaDex!")
 
 @bot.command(name="track_manga")
@@ -150,7 +152,8 @@ async def track_manga(ctx):
             response = "Manga Not Found"
     else:
         response = f"{real_title} is already being tracked!"
-    await ctx.message.channel.send(response1 + response)
+    if not ctx.message.author.bot:
+        await ctx.message.channel.send(response1 + response)
 
 @bot.command(name="untrack_manga")
 async def untrack_manga(ctx):
@@ -168,7 +171,8 @@ async def untrack_manga(ctx):
             response = f"{title} is already not being tracked"
     else:
         response = f"{title} not found on MangaDex"
-    await ctx.send(response)
+    if not ctx.message.author.bot:
+        await ctx.send(response)
 
 @bot.command(name="untrack_all_manga")
 async def untrack_all_manga(ctx):
@@ -177,7 +181,8 @@ async def untrack_all_manga(ctx):
         response = f"{ctx.message.author} is no longer tracking any manga!"
     except:
         response = f"Error: Manga could not be untracked......raise an issue here for further support: https://github.com/tommyryan2002/Mangalerts/issues"
-    await ctx.send(response)
+    if not ctx.message.author.bot:
+        await ctx.send(response)
 
 @bot.command(name="my_manga")
 async def my_manga(ctx):
@@ -193,10 +198,12 @@ async def my_manga(ctx):
             embed = discord.Embed(title=f"{ctx.message.author}'s Tracked Manga", description=string, color=0xff0000)
             embed.set_author(name= "Mangalerts", icon_url='https://imgur.com/nMiqX4V.png')
             embed.set_thumbnail(url = ctx.message.author.avatar_url)
-            await ctx.message.channel.send(embed=embed)
+            if not ctx.message.author.bot:
+                await ctx.message.channel.send(embed=embed)
     except:
         response = f'Error: could not retrieve manga for {ctx.message.author}'
-        await ctx.send(response)
+        if not ctx.message.author.bot:
+            await ctx.send(response)
 
 @bot.command(name="help")
 async def help(ctx):
@@ -212,7 +219,8 @@ async def help(ctx):
     embed.set_thumbnail(url = 'https://imgur.com/nMiqX4V.png')
     embed.add_field(name = "Still Have an Issue?", value = 'Check out the Mangalerts Github: https://github.com/tommyryan2002/Mangalerts', inline= False)
     embed.add_field(name= "Add Mangalerts to your own server!", value = "https://discord.com/api/oauth2/authorize?client_id=852814525886758922&permissions=0&scope=bot")
-    await ctx.send(embed=embed)
+    if not ctx.message.author.bot:
+        await ctx.send(embed=embed)
 
 nest_asyncio.apply()
 db_thread = threading.Thread(target=check_updates)
