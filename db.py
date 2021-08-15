@@ -15,13 +15,22 @@ col = db["guilds"]
 
 def add_guild(guild_name: str):
     document_count = col.count_documents({})
-    col.insert_one({'_id': document_count, 'guild_name': guild_name, 'users': []})
+    while document_count >= 0:
+        try:
+            col.insert_one({'_id': document_count, 'guild_name': guild_name, 'users': []})
+        except:
+            document_count -= 1
+    
+
 
 def remove_guild(guild_name:str):
     col.delete_one({'guild_name': guild_name})
 
 def add_user(guild_name: str, username: str):
-    col.update_one({'guild_name': guild_name}, { '$push': {"users": {"name": username, "manga": []}}})
+    if guild_in_db(guild_name):
+        col.update_one({'guild_name': guild_name}, { '$push': {"users": {"name": username, "manga": []}}})
+    else:
+        raise RuntimeError
 
 def add_manga(guild_name: str, username: str, manga_title: str):
     col.update_one({'guild_name': guild_name, "users.name" : username}, { '$push': {"users.$.manga": {"title": manga_title, "date": date.today().strftime("%m/%d/%Y")}}})

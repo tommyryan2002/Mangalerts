@@ -82,7 +82,7 @@ async def on_guild_join(guild):
             db.add_guild(str(guild))
             response = f"{guild} added to the database!"
         except:
-            response = f"Failed to add {guild} to the database"
+            response = f"Failed to add {guild} to the database......raise an issue here for further support: https://github.com/tommyryan2002/Mangalerts/issues"
     else:
         response = f"{guild} already in the database!"
     await guild.channels[0].send(response)
@@ -94,7 +94,8 @@ async def on_guild_remove(guild):
             db.remove_guild(str(guild))
             print(f"{guild} removed from the database!")
         except:
-            print(f"Failed to remove {guild} from the database")
+            print(f"Failed to remove {guild} from the database......raise an issue here for further support: https://github.com/tommyryan2002/Mangalerts/issues")
+            
     else:
         print(f"{guild} already not in the database!")
 
@@ -132,7 +133,7 @@ async def track_manga(ctx):
             db.add_user(str(ctx.message.guild), str(ctx.message.author))
             response1 = f"{ctx.message.author} added to the database!\n"
         except:
-            response1 = f"Failed to add {ctx.message.author} to the database"
+            response1 = f"Failed to add {ctx.message.author} to the database...raise an issue here for further support: https://github.com/tommyryan2002/Mangalerts/issues"
     else:
         response1 = ''
     string = ctx.message.content
@@ -144,7 +145,7 @@ async def track_manga(ctx):
                 db.add_manga(str(ctx.message.guild), str(ctx.message.author), real_title)
                 response = f"{ctx.message.author} is now tracking {real_title}!"
             except:
-                response = f"Error: {real_title} could not be tracked"
+                response = f"Error: {real_title} could not be tracked......raise an issue here for further support: https://github.com/tommyryan2002/Mangalerts/issues"
         else:
             response = "Manga Not Found"
     else:
@@ -162,7 +163,7 @@ async def untrack_manga(ctx):
                 db.remove_manga(str(ctx.message.guild), str(ctx.message.author), real_title)
                 response = f"{ctx.message.author} is no longer tracking {real_title}!"
             except:
-                response = f"Error: {title} could not be untracked"
+                response = f"Error: {title} could not be untracked......raise an issue here for further support: https://github.com/tommyryan2002/Mangalerts/issues"
         else:
             response = f"{title} is already not being tracked"
     else:
@@ -175,7 +176,7 @@ async def untrack_all_manga(ctx):
         db.remove_all_manga(str(ctx.message.guild), str(ctx.message.author))
         response = f"{ctx.message.author} is no longer tracking any manga!"
     except:
-        response = f"Error: Manga could not be untracked"
+        response = f"Error: Manga could not be untracked......raise an issue here for further support: https://github.com/tommyryan2002/Mangalerts/issues"
     await ctx.send(response)
 
 @bot.command(name="my_manga")
