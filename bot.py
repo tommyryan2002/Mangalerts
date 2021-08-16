@@ -108,16 +108,16 @@ async def ping(ctx):
 async def manga_desc(ctx):
     string = ctx.message.content
     title = string.replace('m!manga ', '')
-    desc_raw = m_requests.grab_manga_description(title)
-    title_real = m_requests.grab_manga_title(title)
-    ele = desc_raw[0]
-    desc= ''
-    for ele in desc_raw:
-        if ele == '[':
-            break
-        desc += ele
     id = m_requests.grab_manga_id(title)
-    if id is not None:
+    desc_raw = m_requests.grab_manga_description(title)
+    if id is not None and len(desc_raw) != 0:
+        title_real = m_requests.grab_manga_title(title)
+        ele = desc_raw[0]
+        desc= ''
+        for ele in desc_raw:
+            if ele == '[':
+                break
+            desc += ele
         cover = m_requests.grab_cover_id(id)
         link = f'https://mangadex.org/title/{id}'
         embed=discord.Embed(title= title_real, url = link, description = desc, color=0xff0000)
