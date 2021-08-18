@@ -85,7 +85,7 @@ async def on_guild_join(guild):
             response = f"Failed to add {guild} to the database......raise an issue here for further support: https://github.com/tommyryan2002/Mangalerts/issues"
     else:
         response = f"{guild} already in the database!"
-    await guild.channels[0].send(response)
+    await guild.text_channels[0].send(response)
 
 @bot.event
 async def on_guild_remove(guild):
@@ -120,11 +120,16 @@ async def manga_desc(ctx):
             desc += ele
         cover = m_requests.grab_cover_id(id)
         link = f'https://mangadex.org/title/{id}'
-        embed=discord.Embed(title= title_real, url = link, description = desc, color=0xff0000)
-        embed.set_author(name='Mangalerts', icon_url='https://imgur.com/nMiqX4V.png')
-        embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
-        if not ctx.message.author.bot:
-            await ctx.message.channel.send(embed=embed)
+        #check if content is NSFW
+        rating = m_requests.grab_manga_rating(title_real)
+        if ("safe" not in rating and ctx.message.channel.is_nsfw()) or "safe" in rating:
+            embed=discord.Embed(title= title_real, url = link, description = desc, color=0xff0000)
+            embed.set_author(name='Mangalerts', icon_url='https://imgur.com/nMiqX4V.png')
+            embed.set_image(url=f'https://uploads.mangadex.org/covers/{id}/{cover}')
+            if not ctx.message.author.bot:
+                await ctx.message.channel.send(embed=embed)
+        else:
+            await ctx.message.channel.send(f"Sorry, it looks like {title_real} is marked \"{rating}\" on MangaDex! Please try this command again in a NSFW channel.")
     elif not ctx.message.author.bot:
         await ctx.message.channel.send(f"{title} not found on MangaDex!")
 

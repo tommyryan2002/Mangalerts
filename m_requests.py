@@ -30,6 +30,15 @@ def grab_manga_description(title: str) -> str:
         desc = "Manga Not Found"   
     return desc
 
+def grab_manga_rating(title:str):
+    try:
+        response = requests.get(f"https://api.mangadex.org/manga?title={title}]")
+        data = response.json()
+        rating = data['results'][0]['data']['attributes']['contentRating']
+    except:
+        rating = "Manga Not Found"
+    return rating
+
 def grab_cover_id(id: str) -> str:
     try:
        response = requests.get(f"https://api.mangadex.org/cover?manga[]={id}")
