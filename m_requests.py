@@ -15,10 +15,10 @@ def grab_manga_title(title: str) -> str:
     try:
         response = requests.get(f"https://api.mangadex.org/manga?title={title}]")
         data = response.json()
-        title = data['results'][0]['data']['attributes']['title']['en']
+        title = data['results'][0]['data']['attributes']['title']
     except:
         title = "Manga Not Found"
-    return title
+    return list(title.items())[0][1]
 
 def grab_manga_description(title: str) -> str:
     title.replace(' ', '+')
