@@ -17,6 +17,7 @@ import threading
 from datetime import date
 from datetime import datetime
 import nest_asyncio
+import requests
 
 load_dotenv()
 intents = discord.Intents.default()
@@ -226,6 +227,22 @@ async def help(ctx):
     embed.add_field(name= "Add Mangalerts to your own server!", value = "https://discord.com/api/oauth2/authorize?client_id=852814525886758922&permissions=0&scope=bot")
     if not ctx.message.author.bot:
         await ctx.send(embed=embed)
+
+@bot.command(name="post")
+async def post(ctx):
+    if str(ctx.message.author) == "idkwho?#7464":
+        TOPGG_TOKEN = os.getenv("TOPGG_TOKEN")
+        url = "https://top.gg/api/bots/852814525886758922/stats"
+
+        payload = {"server_count": len(list(bot.guilds))}
+
+        header = {"Authorization": TOPGG_TOKEN}
+
+        response_decoded_json = requests.post(url, data=payload, headers=header)
+        print(response_decoded_json)
+        await ctx.send(str(response_decoded_json))
+
+
 
 nest_asyncio.apply()
 db_thread = threading.Thread(target=check_updates)

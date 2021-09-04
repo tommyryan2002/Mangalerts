@@ -17,7 +17,7 @@ def grab_manga_title(title: str) -> str:
         data = response.json()
         title = data['results'][0]['data']['attributes']['title']
     except:
-        title = "Manga Not Found"
+        return "Manga Not Found"
     return list(title.items())[0][1]
 
 def grab_manga_description(title: str) -> str:
