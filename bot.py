@@ -236,7 +236,7 @@ async def post(ctx):
 
         payload = {"server_count": len(list(bot.guilds))}
 
-        header = {"Authorization": TOPGG_TOKEN}
+        header = {"Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Ijg1MjgxNDUyNTg4Njc1ODkyMiIsImJvdCI6dHJ1ZSwiaWF0IjoxNjMwNzI4NDkyfQ.nyMtheChFT2xlDuPSrceTwOsuanI-h_NW0BEIuvtR_o"}
 
         response_decoded_json = requests.post(url, data=payload, headers=header)
         print(response_decoded_json)
