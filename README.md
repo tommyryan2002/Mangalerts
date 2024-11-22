@@ -1,5 +1,8 @@
 ![l](https://imgur.com/nMiqX4V.png)
 # Mangalerts
+## *IMPORTANT UPDATE* 
+Mangalerts has shutdown indefinitely, with no plans to bring this bot back online any time soon. I encourage all with the ability to fork this project and improve it, Thanks for all the support! o7
+----
 Mangalerts is a discord bot that provides users with direct message notifications whenever a new chapter of their favorite manga title is released! By [addding Mangalerts to your discord server](https://discord.com/api/oauth2/authorize?client_id=852814525886758922&permissions=0&scope=bot), users can rest assured that they won't miss a single release of their chosen manga titles. Mangalerts runs using a cloudbased MongoDB database and pymongo, as well as the public [MangaDex API](https://api.mangadex.org/docs.html) and [MangaUpdates](https://www.mangaupdates.com/index.html) rss feed using [feedparser](https://pythonhosted.org/feedparser/index.html). MyAnimeList integration and anime release notifications coming soon!
 ## Adding Mangalerts to your server
 Adding Mangalerts to your server is simple as clicking [here](https://discord.com/api/oauth2/authorize?client_id=852814525886758922&permissions=377957173248&scope=bot)!
